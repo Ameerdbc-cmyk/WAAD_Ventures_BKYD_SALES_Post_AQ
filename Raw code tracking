@@ -1,0 +1,33 @@
+ALTER TABLE "BKYD Sales Post-acquisition(All Data) (1)" 
+RENAME TO bkyd_sales;
+
+Sanity check
+
+SELECT Period, COUNT(*) as row_count
+FROM bkyd_sales
+WHERE "Row Type" = 'Item'
+GROUP BY Period;
+
+SELECT Period, ROUND(SUM("Gross Sales"), 2) as total_revenue
+FROM bkyd_sales
+WHERE "Row Type" = 'Item'
+GROUP BY Period;
+
+Filter out Feb due to negligible data
+
+CREATE VIEW mar_apr AS
+SELECT * FROM bkyd_sales
+WHERE "Row Type" = 'Item'
+AND Period != 'FEB';
+
+Category revenue by period
+
+SELECT 
+    Period,
+    Category,
+    SUM(Sold) as total_units,
+    ROUND(SUM("Gross Sales"), 2) as total_revenue
+FROM mar_apr
+GROUP BY Period, Category
+ORDER BY Period, total_revenue DESC;
+
