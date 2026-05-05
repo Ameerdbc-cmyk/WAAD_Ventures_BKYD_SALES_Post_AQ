@@ -1,7 +1,37 @@
+// PYTHON
+
+from google.colab import files
+uploaded = files.upload()
+
+import pandas as pd
+df = pd.read_csv("BKYD_Sales_data.csv")
+df.head()
+
+//Sanity check
+df.columns
+df.info()
+df.head()
+df.describe()
+df.isnull().sum()
+df.duplicated().sum()
+
+df['Category'].unique()
+df['Item'].unique()
+
+// Clean
+
+df_clean = df[~df['Item'].isin(['Total', 'Grand Total'])].copy()
+
+df_clean.shape
+df_clean['Item'].unique()
+
+
+//SQL
+
 ALTER TABLE "BKYD Sales Post-acquisition(All Data) (1)" 
 RENAME TO bkyd_sales;
 
-Sanity check
+// Sanity check
 
 SELECT Period, COUNT(*) as row_count
 FROM bkyd_sales
@@ -13,14 +43,14 @@ FROM bkyd_sales
 WHERE "Row Type" = 'Item'
 GROUP BY Period;
 
-Filter out Feb due to negligible data
+// Filter out Feb due to negligible data
 
 CREATE VIEW mar_apr AS
 SELECT * FROM bkyd_sales
 WHERE "Row Type" = 'Item'
 AND Period != 'FEB';
 
-Category revenue by period
+// Category revenue by period
 
 SELECT 
     Period,
@@ -31,7 +61,7 @@ FROM mar_apr
 GROUP BY Period, Category
 ORDER BY Period, total_revenue DESC;
 
-Side by side pivot to see march and april together
+// Side by side pivot to see march and april together
 
 SELECT
     Category,
@@ -46,21 +76,8 @@ FROM mar_apr
 GROUP BY Category
 ORDER BY mar_revenue DESC;
 
-Output=
-BBQ Platters	64911.0	60872.0	-4039.0	0.0
-The Bun Yard	18161.53	18504.66	343.13	1.9
-Smoke Yard	17392.0	21009.0	3617.0	0.0
-Drinks	7809.0	7745.5	-63.5	-0.8
-Specialty Mac & Cheese	3870.0	3024.0	-846.0	0.0
-Starters	3762.0	3825.0	63.0	0.0
-The Backyard Bites	2360.0	2250.0	-110.0	0.0
-The Chic Yard	1119.44	1359.32	239.88	21.4
-Desserts	994.0	914.0	-80.0	0.0
-Kids Yard	792.0	1224.0	432.0	0.0
-Guilty Pleasures	575.0	686.0	111.0	0.0
-Sauces	129.0	129.0	0.0	0.0
 
-Item-level RANKING
+// Item-level RANKING
 
 SELECT
     Period,
@@ -73,158 +90,8 @@ FROM mar_apr
 GROUP BY Period, Category, Item
 ORDER BY Period, Category, rank_in_category;
 
-Output=
-APR	BBQ Platters	Three Yard	297	32426.0	1
-APR	BBQ Platters	Six Yard	96	19158.0	2
-APR	BBQ Platters	Nine Yard	31	9288.0	3
-APR	Desserts	Molten Lava Cake	64	832.0	1
-APR	Desserts	Ice Cream	16	64.0	2
-APR	Desserts	Sweet Cornbread	2	18.0	3
-APR	Drinks	Mocktails	148	1539.0	1
-APR	Drinks	Mango Strawberry Lemonade	165	1155.0	2
-APR	Drinks	Coke	243	917.0	3
-APR	Drinks	Milkshakes	82	904.0	4
-APR	Drinks	Diet Coke	188	721.0	5
-APR	Drinks	Coke Zero	153	574.0	6
-APR	Drinks	Mint Lemonade	80	560.0	7
-APR	Drinks	Blackberry Pineapple Lemonade	68	476.0	8
-APR	Drinks	7 Up	70	252.0	9
-APR	Drinks	Canada Dry	65	241.5	10
-APR	Drinks	Carbonated Water	56	224.0	11
-APR	Drinks	Barbican	28	126.0	12
-APR	Drinks	Crush	16	56.0	13
-APR	Guilty Pleasures	Corn Bread	83	415.0	1
-APR	Guilty Pleasures	Garlic Bread	24	96.0	2
-APR	Guilty Pleasures	Mushroom Confit	18	90.0	3
-APR	Guilty Pleasures	Baby Roasted Potatoes	17	85.0	4
-APR	Kids Yard	Tenders & Fries	35	630.0	1
-APR	Kids Yard	Sliders & Sides	33	594.0	2
-APR	Sauces	BBQ Sauce	33	33.0	1
-APR	Sauces	Garlic Mayo	25	25.0	2
-APR	Sauces	Gravy	12	24.0	3
-APR	Sauces	Chipotle Mayo	14	14.0	4
-APR	Sauces	BKYD Sauce	14	14.0	4
-APR	Sauces	Hot Sauce	9	9.0	6
-APR	Sauces	Honey	5	5.0	7
-APR	Sauces	Gold Sauce	3	3.0	8
-APR	Sauces	Cheese Sauce	1	2.0	9
-APR	Smoke Yard	Brisket	163	7661.0	1
-APR	Smoke Yard	Beef Back Ribs	165	5940.0	2
-APR	Smoke Yard	Short Ribs	59	3245.0	3
-APR	Smoke Yard	Lamb Shank	43	1548.0	4
-APR	Smoke Yard	Whole Smoked Chicken	29	1015.0	5
-APR	Smoke Yard	Smoked Sausages (5 Pcs)	40	800.0	6
-APR	Smoke Yard	Pulled Chuck	20	400.0	7
-APR	Smoke Yard	Chicken Quarters	16	400.0	7
-APR	Specialty Mac & Cheese	Brisket Mac And Cheese	139	2502.0	1
-APR	Specialty Mac & Cheese	Chicken Mac And Cheese	19	342.0	2
-APR	Specialty Mac & Cheese	Mushroom Mac and Cheese	10	180.0	3
-APR	Starters	Mac & Cheese	103	927.0	1
-APR	Starters	Fried Shrimp	42	504.0	2
-APR	Starters	Curly Fries	79	395.0	3
-APR	Starters	Caesar Salad	24	264.0	4
-APR	Starters	Mashed Potatoes	32	256.0	5
-APR	Starters	Mushroom Soup	28	252.0	6
-APR	Starters	Smoked Corn	27	243.0	7
-APR	Starters	Hand Cut Fries	55	220.0	8
-APR	Starters	Fried Pickles	30	210.0	9
-APR	Starters	Sweet Potato Fries	34	204.0	10
-APR	Starters	Baked Beans	20	140.0	11
-APR	Starters	Creamy Coleslaw	17	102.0	12
-APR	Starters	Rice	12	60.0	13
-APR	Starters	Macaroni Salad	8	48.0	14
-APR	The Backyard Bites	Brisket Poutine	50	950.0	1
-APR	The Backyard Bites	Chuck Beef Sliders X3	52	936.0	2
-APR	The Backyard Bites	Pulled Chicken Poutine	11	176.0	3
-APR	The Backyard Bites	Party Fries	8	152.0	4
-APR	The Backyard Bites	Regular Poutine	3	36.0	5
-APR	The Bun Yard	Brisket Beef Burger	234	5852.16	1
-APR	The Bun Yard	The Backyard Burger	210	4213.5	2
-APR	The Bun Yard	The Chef Yard Burger	102	2244.0	3
-APR	The Bun Yard	Pulled Beef Sandwich	91	2002.0	4
-APR	The Bun Yard	Cheeseyard Burger	59	1298.0	5
-APR	The Bun Yard	Nashville Hen Sandwich	64	1280.0	6
-APR	The Bun Yard	Holy Hen Sandwich	47	893.0	7
-APR	The Bun Yard	Pulled Smoked Chicken	38	722.0	8
-APR	The Chic Yard	1lb Chicken Wings	44	879.56	1
-APR	The Chic Yard	Chicken Strips	24	479.76	2
-MAR	BBQ Platters	Three Yard	314	34192.0	1
-MAR	BBQ Platters	Six Yard	96	19097.0	2
-MAR	BBQ Platters	Nine Yard	39	11622.0	3
-MAR	Desserts	Molten Lava Cake	68	884.0	1
-MAR	Desserts	Ice Cream	14	56.0	2
-MAR	Desserts	Sweet Cornbread	6	54.0	3
-MAR	Drinks	Mango Strawberry Lemonade	205	1435.0	1
-MAR	Drinks	Mocktails	139	1413.0	2
-MAR	Drinks	Coke	232	959.0	3
-MAR	Drinks	Milkshakes	79	851.0	4
-MAR	Drinks	Mint Lemonade	96	672.0	5
-MAR	Drinks	Diet Coke	147	626.5	6
-MAR	Drinks	Blackberry Pineapple Lemonade	75	525.0	7
-MAR	Drinks	Coke Zero	126	521.0	8
-MAR	Drinks	Canada Dry	72	311.5	9
-MAR	Drinks	7 Up	49	185.5	10
-MAR	Drinks	Barbican	30	135.0	11
-MAR	Drinks	Carbonated Water	27	108.0	12
-MAR	Drinks	Crush	19	66.5	13
-MAR	Guilty Pleasures	Corn Bread	55	275.0	1
-MAR	Guilty Pleasures	Mushroom Confit	21	105.0	2
-MAR	Guilty Pleasures	Garlic Bread	25	100.0	3
-MAR	Guilty Pleasures	Baby Roasted Potatoes	19	95.0	4
-MAR	Kids Yard	Sliders & Sides	26	468.0	1
-MAR	Kids Yard	Tenders & Fries	18	324.0	2
-MAR	Sauces	Chipotle Mayo	25	25.0	1
-MAR	Sauces	Gravy	11	22.0	2
-MAR	Sauces	BBQ Sauce	20	20.0	3
-MAR	Sauces	Garlic Mayo	18	18.0	4
-MAR	Sauces	Cheese Sauce	7	14.0	5
-MAR	Sauces	BKYD Sauce	12	12.0	6
-MAR	Sauces	Hot Sauce	10	10.0	7
-MAR	Sauces	Honey	4	4.0	8
-MAR	Sauces	Gold Sauce	4	4.0	8
-MAR	Smoke Yard	Brisket	128	6016.0	1
-MAR	Smoke Yard	Beef Back Ribs	137	4932.0	2
-MAR	Smoke Yard	Short Ribs	54	2970.0	3
-MAR	Smoke Yard	Lamb Shank	39	1404.0	4
-MAR	Smoke Yard	Whole Smoked Chicken	21	735.0	5
-MAR	Smoke Yard	Smoked Sausages (5 Pcs)	28	560.0	6
-MAR	Smoke Yard	Pulled Chuck	20	400.0	7
-MAR	Smoke Yard	Chicken Quarters	15	375.0	8
-MAR	Specialty Mac & Cheese	Brisket Mac And Cheese	172	3096.0	1
-MAR	Specialty Mac & Cheese	Chicken Mac And Cheese	29	522.0	2
-MAR	Specialty Mac & Cheese	Mushroom Mac and Cheese	14	252.0	3
-MAR	Starters	Mac & Cheese	109	981.0	1
-MAR	Starters	Fried Shrimp	45	540.0	2
-MAR	Starters	Curly Fries	69	345.0	3
-MAR	Starters	Mushroom Soup	37	333.0	4
-MAR	Starters	Caesar Salad	30	330.0	5
-MAR	Starters	Sweet Potato Fries	32	192.0	6
-MAR	Starters	Mashed Potatoes	24	192.0	6
-MAR	Starters	Smoked Corn	21	189.0	8
-MAR	Starters	Hand Cut Fries	43	172.0	9
-MAR	Starters	Fried Pickles	21	147.0	10
-MAR	Starters	Baked Beans	18	126.0	11
-MAR	Starters	Creamy Coleslaw	20	120.0	12
-MAR	Starters	Rice	13	65.0	13
-MAR	Starters	Macaroni Salad	5	30.0	14
-MAR	The Backyard Bites	Brisket Poutine	64	1216.0	1
-MAR	The Backyard Bites	Chuck Beef Sliders X3	53	954.0	2
-MAR	The Backyard Bites	Pulled Chicken Poutine	8	128.0	3
-MAR	The Backyard Bites	Party Fries	2	38.0	4
-MAR	The Backyard Bites	Regular Poutine	2	24.0	5
-MAR	The Bun Yard	The Backyard Burger	250	5022.5	1
-MAR	The Bun Yard	Brisket Beef Burger	197	4923.03	2
-MAR	The Bun Yard	Pulled Beef Sandwich	115	2530.0	3
-MAR	The Bun Yard	The Chef Yard Burger	98	2156.0	4
-MAR	The Bun Yard	Nashville Hen Sandwich	58	1160.0	5
-MAR	The Bun Yard	Holy Hen Sandwich	53	1007.0	6
-MAR	The Bun Yard	Pulled Smoked Chicken	37	703.0	7
-MAR	The Bun Yard	Cheeseyard Burger	30	660.0	8
-MAR	The Chic Yard	1lb Chicken Wings	43	859.57	1
-MAR	The Chic Yard	Chicken Strips	13	259.87	2
 
-
-Item level comparison SOLD
+// Item level comparison SOLD
 
 SELECT
     Category,
@@ -242,83 +109,7 @@ FROM mar_apr
 GROUP BY Category, Item
 ORDER BY change_dollars ASC;
 
-Output=
-BBQ Platters	Nine Yard	11622.0	9288.0	-2334.0	0.0	39	31
-BBQ Platters	Three Yard	34192.0	32426.0	-1766.0	0.0	314	297
-The Bun Yard	The Backyard Burger	5022.5	4213.5	-809.0	-16.1	250	210
-Specialty Mac & Cheese	Brisket Mac And Cheese	3096.0	2502.0	-594.0	0.0	172	139
-The Bun Yard	Pulled Beef Sandwich	2530.0	2002.0	-528.0	0.0	115	91
-Drinks	Mango Strawberry Lemonade	1435.0	1155.0	-280.0	0.0	205	165
-The Backyard Bites	Brisket Poutine	1216.0	950.0	-266.0	0.0	64	50
-Specialty Mac & Cheese	Chicken Mac And Cheese	522.0	342.0	-180.0	0.0	29	19
-The Bun Yard	Holy Hen Sandwich	1007.0	893.0	-114.0	0.0	53	47
-Drinks	Mint Lemonade	672.0	560.0	-112.0	0.0	96	80
-Starters	Mushroom Soup	333.0	252.0	-81.0	0.0	37	28
-Specialty Mac & Cheese	Mushroom Mac and Cheese	252.0	180.0	-72.0	0.0	14	10
-Drinks	Canada Dry	311.5	241.5	-70.0	-22.5	72	65
-Starters	Caesar Salad	330.0	264.0	-66.0	0.0	30	24
-Starters	Mac & Cheese	981.0	927.0	-54.0	0.0	109	103
-Desserts	Molten Lava Cake	884.0	832.0	-52.0	0.0	68	64
-Drinks	Blackberry Pineapple Lemonade	525.0	476.0	-49.0	0.0	75	68
-Drinks	Coke	959.0	917.0	-42.0	0.0	232	243
-Desserts	Sweet Cornbread	54.0	18.0	-36.0	0.0	6	2
-Starters	Fried Shrimp	540.0	504.0	-36.0	0.0	45	42
-Starters	Creamy Coleslaw	120.0	102.0	-18.0	0.0	20	17
-The Backyard Bites	Chuck Beef Sliders X3	954.0	936.0	-18.0	0.0	53	52
-Guilty Pleasures	Mushroom Confit	105.0	90.0	-15.0	0.0	21	18
-Sauces	Cheese Sauce	14.0	2.0	-12.0	0.0	7	1
-Sauces	Chipotle Mayo	25.0	14.0	-11.0	0.0	25	14
-Drinks	Crush	66.5	56.0	-10.5	-15.8	19	16
-Guilty Pleasures	Baby Roasted Potatoes	95.0	85.0	-10.0	0.0	19	17
-Drinks	Barbican	135.0	126.0	-9.0	0.0	30	28
-Starters	Rice	65.0	60.0	-5.0	0.0	13	12
-Guilty Pleasures	Garlic Bread	100.0	96.0	-4.0	0.0	25	24
-Sauces	Gold Sauce	4.0	3.0	-1.0	0.0	4	3
-Sauces	Hot Sauce	10.0	9.0	-1.0	0.0	10	9
-Smoke Yard	Pulled Chuck	400.0	400.0	0.0	0.0	20	20
-Sauces	Honey	4.0	5.0	1.0	0.0	4	5
-Sauces	BKYD Sauce	12.0	14.0	2.0	0.0	12	14
-Sauces	Gravy	22.0	24.0	2.0	0.0	11	12
-Sauces	Garlic Mayo	18.0	25.0	7.0	0.0	18	25
-Desserts	Ice Cream	56.0	64.0	8.0	0.0	14	16
-Starters	Sweet Potato Fries	192.0	204.0	12.0	0.0	32	34
-The Backyard Bites	Regular Poutine	24.0	36.0	12.0	0.0	2	3
-Sauces	BBQ Sauce	20.0	33.0	13.0	0.0	20	33
-Starters	Baked Beans	126.0	140.0	14.0	0.0	18	20
-Starters	Macaroni Salad	30.0	48.0	18.0	0.0	5	8
-The Bun Yard	Pulled Smoked Chicken	703.0	722.0	19.0	0.0	37	38
-The Chic Yard	1lb Chicken Wings	859.57	879.56	19.99	2.3	43	44
-Smoke Yard	Chicken Quarters	375.0	400.0	25.0	0.0	15	16
-Starters	Hand Cut Fries	172.0	220.0	48.0	0.0	43	55
-The Backyard Bites	Pulled Chicken Poutine	128.0	176.0	48.0	0.0	8	11
-Starters	Curly Fries	345.0	395.0	50.0	0.0	69	79
-Drinks	Coke Zero	521.0	574.0	53.0	0.0	126	153
-Drinks	Milkshakes	851.0	904.0	53.0	0.0	79	82
-Starters	Smoked Corn	189.0	243.0	54.0	0.0	21	27
-BBQ Platters	Six Yard	19097.0	19158.0	61.0	0.0	96	96
-Starters	Fried Pickles	147.0	210.0	63.0	0.0	21	30
-Starters	Mashed Potatoes	192.0	256.0	64.0	0.0	24	32
-Drinks	7 Up	185.5	252.0	66.5	35.8	49	70
-The Bun Yard	The Chef Yard Burger	2156.0	2244.0	88.0	0.0	98	102
-Drinks	Diet Coke	626.5	721.0	94.5	15.1	147	188
-The Backyard Bites	Party Fries	38.0	152.0	114.0	300.0	2	8
-Drinks	Carbonated Water	108.0	224.0	116.0	100.0	27	56
-The Bun Yard	Nashville Hen Sandwich	1160.0	1280.0	120.0	0.0	58	64
-Drinks	Mocktails	1413.0	1539.0	126.0	0.0	139	148
-Kids Yard	Sliders & Sides	468.0	594.0	126.0	0.0	26	33
-Guilty Pleasures	Corn Bread	275.0	415.0	140.0	0.0	55	83
-Smoke Yard	Lamb Shank	1404.0	1548.0	144.0	0.0	39	43
-The Chic Yard	Chicken Strips	259.87	479.76	219.89	84.6	13	24
-Smoke Yard	Smoked Sausages (5 Pcs)	560.0	800.0	240.0	0.0	28	40
-Smoke Yard	Short Ribs	2970.0	3245.0	275.0	0.0	54	59
-Smoke Yard	Whole Smoked Chicken	735.0	1015.0	280.0	0.0	21	29
-Kids Yard	Tenders & Fries	324.0	630.0	306.0	0.0	18	35
-The Bun Yard	Cheeseyard Burger	660.0	1298.0	638.0	0.0	30	59
-The Bun Yard	Brisket Beef Burger	4923.03	5852.16	929.13	18.9	197	234
-Smoke Yard	Beef Back Ribs	4932.0	5940.0	1008.0	0.0	137	165
-Smoke Yard	Brisket	6016.0	7661.0	1645.0	0.0	128	163
-
-Underperformers
+// Underperformers
 
 SELECT
     Category,
@@ -331,30 +122,8 @@ GROUP BY Category, Item
 HAVING total_units < 20
 ORDER BY total_units ASC;
 
-Output=
-Sauces	Cheese Sauce	1	2.0
-Desserts	Sweet Cornbread	2	18.0
-Sauces	Gold Sauce	3	3.0
-The Backyard Bites	Regular Poutine	3	36.0
-Sauces	Honey	5	5.0
-Starters	Macaroni Salad	8	48.0
-The Backyard Bites	Party Fries	8	152.0
-Sauces	Hot Sauce	9	9.0
-Specialty Mac & Cheese	Mushroom Mac and Cheese	10	180.0
-The Backyard Bites	Pulled Chicken Poutine	11	176.0
-Sauces	Gravy	12	24.0
-Starters	Rice	12	60.0
-Sauces	BKYD Sauce	14	14.0
-Sauces	Chipotle Mayo	14	14.0
-Desserts	Ice Cream	16	64.0
-Drinks	Crush	16	56.0
-Smoke Yard	Chicken Quarters	16	400.0
-Guilty Pleasures	Baby Roasted Potatoes	17	85.0
-Starters	Creamy Coleslaw	17	102.0
-Guilty Pleasures	Mushroom Confit	18	90.0
-Specialty Mac & Cheese	Chicken Mac And Cheese	19	342.0
 
-Pareto
+// Pareto Analysis
 
 SELECT
     Item,
@@ -367,83 +136,9 @@ WHERE Period = 'APR'
 GROUP BY Item
 ORDER BY total_revenue DESC;
 
-Output=
-Three Yard	32426.0	32426.0	26.7
-Six Yard	19158.0	51584.0	42.4
-Nine Yard	9288.0	60872.0	50.1
-Brisket	7661.0	68533.0	56.4
-Beef Back Ribs	5940.0	74473.0	61.3
-Brisket Beef Burger	5852.16	80325.16	66.1
-The Backyard Burger	4213.5	84538.66	69.6
-Short Ribs	3245.0	87783.66	72.2
-Brisket Mac And Cheese	2502.0	90285.66	74.3
-The Chef Yard Burger	2244.0	92529.66	76.1
-Pulled Beef Sandwich	2002.0	94531.66	77.8
-Lamb Shank	1548.0	96079.66	79.1
-Mocktails	1539.0	97618.66	80.3
-Cheeseyard Burger	1298.0	98916.66	81.4
-Nashville Hen Sandwich	1280.0	100196.66	82.4
-Mango Strawberry Lemonade	1155.0	101351.66	83.4
-Whole Smoked Chicken	1015.0	102366.66	84.2
-Brisket Poutine	950.0	103316.66	85.0
-Chuck Beef Sliders X3	936.0	104252.66	85.8
-Mac & Cheese	927.0	105179.66	86.5
-Coke	917.0	106096.66	87.3
-Milkshakes	904.0	107000.66	88.0
-Holy Hen Sandwich	893.0	107893.66	88.8
-1lb Chicken Wings	879.56	108773.22	89.5
-Molten Lava Cake	832.0	109605.22	90.2
-Smoked Sausages (5 Pcs)	800.0	110405.22	90.8
-Pulled Smoked Chicken	722.0	111127.22	91.4
-Diet Coke	721.0	111848.22	92.0
-Tenders & Fries	630.0	112478.22	92.5
-Sliders & Sides	594.0	113072.22	93.0
-Coke Zero	574.0	113646.22	93.5
-Mint Lemonade	560.0	114206.22	94.0
-Fried Shrimp	504.0	114710.22	94.4
-Chicken Strips	479.76	115189.98	94.8
-Blackberry Pineapple Lemonade	476.0	115665.98	95.2
-Corn Bread	415.0	116080.98	95.5
-Chicken Quarters	400.0	116880.98	96.2
-Pulled Chuck	400.0	116880.98	96.2
-Curly Fries	395.0	117275.98	96.5
-Chicken Mac And Cheese	342.0	117617.98	96.8
-Caesar Salad	264.0	117881.98	97.0
-Mashed Potatoes	256.0	118137.98	97.2
-7 Up	252.0	118641.98	97.6
-Mushroom Soup	252.0	118641.98	97.6
-Smoked Corn	243.0	118884.98	97.8
-Canada Dry	241.5	119126.48	98.0
-Carbonated Water	224.0	119350.48	98.2
-Hand Cut Fries	220.0	119570.48	98.4
-Fried Pickles	210.0	119780.48	98.6
-Sweet Potato Fries	204.0	119984.48	98.7
-Mushroom Mac and Cheese	180.0	120164.48	98.9
-Pulled Chicken Poutine	176.0	120340.48	99.0
-Party Fries	152.0	120492.48	99.1
-Baked Beans	140.0	120632.48	99.3
-Barbican	126.0	120758.48	99.4
-Creamy Coleslaw	102.0	120860.48	99.4
-Garlic Bread	96.0	120956.48	99.5
-Mushroom Confit	90.0	121046.48	99.6
-Baby Roasted Potatoes	85.0	121131.48	99.7
-Ice Cream	64.0	121195.48	99.7
-Rice	60.0	121255.48	99.8
-Crush	56.0	121311.48	99.8
-Macaroni Salad	48.0	121359.48	99.8
-Regular Poutine	36.0	121395.48	99.9
-BBQ Sauce	33.0	121428.48	99.9
-Garlic Mayo	25.0	121453.48	99.9
-Gravy	24.0	121477.48	99.9
-Sweet Cornbread	18.0	121495.48	100.0
-BKYD Sauce	14.0	121523.48	100.0
-Chipotle Mayo	14.0	121523.48	100.0
-Hot Sauce	9.0	121532.48	100.0
-Honey	5.0	121537.48	100.0
-Gold Sauce	3.0	121540.48	100.0
-Cheese Sauce	2.0	121542.48	100.0
 
-Modifier revenue by period
+
+// Modifier revenue by period
 
 SELECT
     Period,
@@ -453,12 +148,7 @@ SELECT
 FROM mar_apr
 GROUP BY Period;
 
-Output=
-Period	modifier_revenue	total_revenue	modifier_pct
-APR	757.0	121542.48	0.62
-MAR	804.0	121874.97	0.66
-
-Revenue per unit by item
+// Revenue per unit by item
 
 SELECT
     Period,
@@ -471,159 +161,3 @@ FROM mar_apr
 WHERE Sold > 0
 GROUP BY Period, Category, Item
 ORDER BY Period, revenue_per_unit DESC;
-
-output=
-Period	Category	Item	total_units	total_revenue	revenue_per_unit
-APR	BBQ Platters	Nine Yard	31	9288.0	299.0
-APR	BBQ Platters	Six Yard	96	19158.0	199.0
-APR	BBQ Platters	Three Yard	297	32426.0	109.0
-APR	Smoke Yard	Short Ribs	59	3245.0	55.0
-APR	Smoke Yard	Brisket	163	7661.0	47.0
-APR	Smoke Yard	Beef Back Ribs	165	5940.0	36.0
-APR	Smoke Yard	Lamb Shank	43	1548.0	36.0
-APR	Smoke Yard	Whole Smoked Chicken	29	1015.0	35.0
-APR	The Bun Yard	Brisket Beef Burger	234	5852.16	25.01
-APR	Smoke Yard	Chicken Quarters	16	400.0	25.0
-APR	The Bun Yard	Cheeseyard Burger	59	1298.0	22.0
-APR	The Bun Yard	Pulled Beef Sandwich	91	2002.0	22.0
-APR	The Bun Yard	The Chef Yard Burger	102	2244.0	22.0
-APR	The Bun Yard	The Backyard Burger	210	4213.5	20.06
-APR	Smoke Yard	Pulled Chuck	20	400.0	20.0
-APR	Smoke Yard	Smoked Sausages (5 Pcs)	40	800.0	20.0
-APR	The Bun Yard	Nashville Hen Sandwich	64	1280.0	20.0
-APR	The Chic Yard	1lb Chicken Wings	44	879.56	19.99
-APR	The Chic Yard	Chicken Strips	24	479.76	19.99
-APR	The Backyard Bites	Brisket Poutine	50	950.0	19.0
-APR	The Backyard Bites	Party Fries	8	152.0	19.0
-APR	The Bun Yard	Holy Hen Sandwich	47	893.0	19.0
-APR	The Bun Yard	Pulled Smoked Chicken	38	722.0	19.0
-APR	Kids Yard	Sliders & Sides	33	594.0	18.0
-APR	Kids Yard	Tenders & Fries	35	630.0	18.0
-APR	Specialty Mac & Cheese	Brisket Mac And Cheese	139	2502.0	18.0
-APR	Specialty Mac & Cheese	Chicken Mac And Cheese	19	342.0	18.0
-APR	Specialty Mac & Cheese	Mushroom Mac and Cheese	10	180.0	18.0
-APR	The Backyard Bites	Chuck Beef Sliders X3	52	936.0	18.0
-APR	The Backyard Bites	Pulled Chicken Poutine	11	176.0	16.0
-APR	Desserts	Molten Lava Cake	64	832.0	13.0
-APR	Starters	Fried Shrimp	42	504.0	12.0
-APR	The Backyard Bites	Regular Poutine	3	36.0	12.0
-APR	Drinks	Milkshakes	82	904.0	11.0
-APR	Starters	Caesar Salad	24	264.0	11.0
-APR	Drinks	Mocktails	148	1539.0	10.0
-APR	Desserts	Sweet Cornbread	2	18.0	9.0
-APR	Starters	Mac & Cheese	103	927.0	9.0
-APR	Starters	Mushroom Soup	28	252.0	9.0
-APR	Starters	Smoked Corn	27	243.0	9.0
-APR	Starters	Mashed Potatoes	32	256.0	8.0
-APR	Drinks	Blackberry Pineapple Lemonade	68	476.0	7.0
-APR	Drinks	Mango Strawberry Lemonade	165	1155.0	7.0
-APR	Drinks	Mint Lemonade	80	560.0	7.0
-APR	Starters	Baked Beans	20	140.0	7.0
-APR	Starters	Fried Pickles	30	210.0	7.0
-APR	Starters	Creamy Coleslaw	17	102.0	6.0
-APR	Starters	Macaroni Salad	8	48.0	6.0
-APR	Starters	Sweet Potato Fries	34	204.0	6.0
-APR	Guilty Pleasures	Baby Roasted Potatoes	17	85.0	5.0
-APR	Guilty Pleasures	Corn Bread	83	415.0	5.0
-APR	Guilty Pleasures	Mushroom Confit	18	90.0	5.0
-APR	Starters	Curly Fries	79	395.0	5.0
-APR	Starters	Rice	12	60.0	5.0
-APR	Desserts	Ice Cream	16	64.0	4.0
-APR	Drinks	Barbican	28	126.0	4.0
-APR	Drinks	Carbonated Water	56	224.0	4.0
-APR	Guilty Pleasures	Garlic Bread	24	96.0	4.0
-APR	Starters	Hand Cut Fries	55	220.0	4.0
-APR	Drinks	Canada Dry	65	241.5	3.72
-APR	Drinks	7 Up	70	252.0	3.0
-APR	Drinks	Coke	243	917.0	3.0
-APR	Drinks	Coke Zero	153	574.0	3.0
-APR	Drinks	Crush	16	56.0	3.0
-APR	Drinks	Diet Coke	188	721.0	3.0
-APR	Sauces	Cheese Sauce	1	2.0	2.0
-APR	Sauces	Gravy	12	24.0	2.0
-APR	Sauces	BBQ Sauce	33	33.0	1.0
-APR	Sauces	BKYD Sauce	14	14.0	1.0
-APR	Sauces	Chipotle Mayo	14	14.0	1.0
-APR	Sauces	Garlic Mayo	25	25.0	1.0
-APR	Sauces	Gold Sauce	3	3.0	1.0
-APR	Sauces	Honey	5	5.0	1.0
-APR	Sauces	Hot Sauce	9	9.0	1.0
-MAR	BBQ Platters	Nine Yard	39	11622.0	298.0
-MAR	BBQ Platters	Six Yard	96	19097.0	198.0
-MAR	BBQ Platters	Three Yard	314	34192.0	108.0
-MAR	Smoke Yard	Short Ribs	54	2970.0	55.0
-MAR	Smoke Yard	Brisket	128	6016.0	47.0
-MAR	Smoke Yard	Beef Back Ribs	137	4932.0	36.0
-MAR	Smoke Yard	Lamb Shank	39	1404.0	36.0
-MAR	Smoke Yard	Whole Smoked Chicken	21	735.0	35.0
-MAR	Smoke Yard	Chicken Quarters	15	375.0	25.0
-MAR	The Bun Yard	Brisket Beef Burger	197	4923.03	24.99
-MAR	The Bun Yard	Cheeseyard Burger	30	660.0	22.0
-MAR	The Bun Yard	Pulled Beef Sandwich	115	2530.0	22.0
-MAR	The Bun Yard	The Chef Yard Burger	98	2156.0	22.0
-MAR	The Bun Yard	The Backyard Burger	250	5022.5	20.09
-MAR	Smoke Yard	Pulled Chuck	20	400.0	20.0
-MAR	Smoke Yard	Smoked Sausages (5 Pcs)	28	560.0	20.0
-MAR	The Bun Yard	Nashville Hen Sandwich	58	1160.0	20.0
-MAR	The Chic Yard	1lb Chicken Wings	43	859.57	19.99
-MAR	The Chic Yard	Chicken Strips	13	259.87	19.99
-MAR	The Backyard Bites	Brisket Poutine	64	1216.0	19.0
-MAR	The Backyard Bites	Party Fries	2	38.0	19.0
-MAR	The Bun Yard	Holy Hen Sandwich	53	1007.0	19.0
-MAR	The Bun Yard	Pulled Smoked Chicken	37	703.0	19.0
-MAR	Kids Yard	Sliders & Sides	26	468.0	18.0
-MAR	Kids Yard	Tenders & Fries	18	324.0	18.0
-MAR	Specialty Mac & Cheese	Brisket Mac And Cheese	172	3096.0	18.0
-MAR	Specialty Mac & Cheese	Chicken Mac And Cheese	29	522.0	18.0
-MAR	Specialty Mac & Cheese	Mushroom Mac and Cheese	14	252.0	18.0
-MAR	The Backyard Bites	Chuck Beef Sliders X3	53	954.0	18.0
-MAR	The Backyard Bites	Pulled Chicken Poutine	8	128.0	16.0
-MAR	Desserts	Molten Lava Cake	68	884.0	13.0
-MAR	Starters	Fried Shrimp	45	540.0	12.0
-MAR	The Backyard Bites	Regular Poutine	2	24.0	12.0
-MAR	Starters	Caesar Salad	30	330.0	11.0
-MAR	Drinks	Milkshakes	79	851.0	10.0
-MAR	Drinks	Mocktails	139	1413.0	10.0
-MAR	Desserts	Sweet Cornbread	6	54.0	9.0
-MAR	Starters	Mac & Cheese	109	981.0	9.0
-MAR	Starters	Mushroom Soup	37	333.0	9.0
-MAR	Starters	Smoked Corn	21	189.0	9.0
-MAR	Starters	Mashed Potatoes	24	192.0	8.0
-MAR	Drinks	Blackberry Pineapple Lemonade	75	525.0	7.0
-MAR	Drinks	Mango Strawberry Lemonade	205	1435.0	7.0
-MAR	Drinks	Mint Lemonade	96	672.0	7.0
-MAR	Starters	Baked Beans	18	126.0	7.0
-MAR	Starters	Fried Pickles	21	147.0	7.0
-MAR	Starters	Creamy Coleslaw	20	120.0	6.0
-MAR	Starters	Macaroni Salad	5	30.0	6.0
-MAR	Starters	Sweet Potato Fries	32	192.0	6.0
-MAR	Guilty Pleasures	Baby Roasted Potatoes	19	95.0	5.0
-MAR	Guilty Pleasures	Corn Bread	55	275.0	5.0
-MAR	Guilty Pleasures	Mushroom Confit	21	105.0	5.0
-MAR	Starters	Curly Fries	69	345.0	5.0
-MAR	Starters	Rice	13	65.0	5.0
-MAR	Drinks	Canada Dry	72	311.5	4.33
-MAR	Drinks	Diet Coke	147	626.5	4.26
-MAR	Desserts	Ice Cream	14	56.0	4.0
-MAR	Drinks	Barbican	30	135.0	4.0
-MAR	Drinks	Carbonated Water	27	108.0	4.0
-MAR	Drinks	Coke	232	959.0	4.0
-MAR	Drinks	Coke Zero	126	521.0	4.0
-MAR	Guilty Pleasures	Garlic Bread	25	100.0	4.0
-MAR	Starters	Hand Cut Fries	43	172.0	4.0
-MAR	Drinks	7 Up	49	185.5	3.79
-MAR	Drinks	Crush	19	66.5	3.5
-MAR	Sauces	Cheese Sauce	7	14.0	2.0
-MAR	Sauces	Gravy	11	22.0	2.0
-MAR	Sauces	BBQ Sauce	20	20.0	1.0
-MAR	Sauces	BKYD Sauce	12	12.0	1.0
-MAR	Sauces	Chipotle Mayo	25	25.0	1.0
-MAR	Sauces	Garlic Mayo	18	18.0	1.0
-MAR	Sauces	Gold Sauce	4	4.0	1.0
-MAR	Sauces	Honey	4	4.0	1.0
-MAR	Sauces	Hot Sauce	10	10.0	1.0
-
-
-
-
-
